@@ -11,6 +11,7 @@ import numpy
 import tornado.gen
 import tornado.httpclient
 import tornado.options
+from tornado.httpclient import HTTPRequest, HTTPError
 
 async_http_client = tornado.httpclient.AsyncHTTPClient()
 id_counter = 0
@@ -51,7 +52,7 @@ def create_index(idx_name):
 @tornado.gen.coroutine
 def upload_batch(upload_data_txt):
 
-    request = tornado.httpclient.HTTPRequest(tornado.options.options.es_url + "/_bulk", method="POST", body=upload_data_txt, request_timeout=3)
+    request = tornado.httpclient.HTTPRequest(tornado.options.options.es_url + "/_bulk", method="POST", body=upload_data_txt, request_timeout=60 )
     response = yield async_http_client.fetch(request)
 
     result = json.loads(response.body)
@@ -137,7 +138,7 @@ def set_index_refresh(val):
     url = "%s/%s/_settings" % (tornado.options.options.es_url, tornado.options.options.index_name)
     try:
         request = HTTPRequest(url, method="PUT", body=body, request_timeout=240)
-        http_client.fetch(request)
+        async_http_client.fetch(request)
         logging.info('Set index refresh to %s' % val)
     except HTTPError:
         pass
