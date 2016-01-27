@@ -3,15 +3,15 @@
 import json
 import time
 import logging
-import random
-import string
 import uuid
-import numpy
 
+import numpy
 import tornado.gen
 import tornado.httpclient
 import tornado.options
 from tornado.httpclient import HTTPRequest, HTTPError
+
+from parser.format_parser import get_data_for_format
 
 async_http_client = tornado.httpclient.AsyncHTTPClient()
 id_counter = 0
@@ -61,52 +61,6 @@ def upload_batch(upload_data_txt):
     batch_upload_took.append(took)
 
     logging.info("Upload: %s - upload took: %5dms, total docs uploaded: %7d" % (res_txt, took, upload_data_count))
-
-
-def get_data_for_format(format):
-    split_f = format.split(":")
-    if not split_f:
-        return None, None
-
-    field_name = split_f[0]
-    field_type = split_f[1]
-
-    if field_type == "str":
-        min = 3 if len(split_f) < 3 else int(split_f[2])
-        max = min + 7 if len(split_f) < 4 else int(split_f[3])
-        length = random.randrange(min, max)
-        return_val = "".join([random.choice(string.ascii_letters + string.digits) for x in range(length)])
-
-    elif field_type == "int":
-        min = 0 if len(split_f) < 3 else int(split_f[2])
-        max = min + 100000 if len(split_f) < 4 else int(split_f[3])
-        return_val = random.randrange(min, max)
-
-    elif field_type == "ts":
-        now = int(time.time())
-        per_day = 24 * 60 * 60
-        min = now - 30 * per_day if len(split_f) < 3 else int(split_f[2])
-        max = now + 30 * per_day if len(split_f) < 4 else int(split_f[3])
-        return_val = int(random.randrange(min, max) * 1000)
-
-    elif field_type == "words":
-        min = 2 if len(split_f) < 3 else int(split_f[2])
-        max = min + 8 if len(split_f) < 4 else int(split_f[3])
-        count = random.randrange(min, max)
-        words = []
-        for _ in range(count):
-            word_len = random.randrange(3, 10)
-            words.append("".join([random.choice(string.ascii_letters + string.digits) for x in range(word_len)]))
-        return_val = " ".join(words)
-
-    elif field_type == "dict":
-        global _dict_data
-        min = 2 if len(split_f) < 3 else int(split_f[2])
-        max = min + 8 if len(split_f) < 4 else int(split_f[3])
-        count = random.randrange(min, max)
-        return_val = " ".join([random.choice(_dict_data).strip() for _ in range(count)])
-
-    return field_name, return_val
 
 
 def generate_random_doc(format):
@@ -225,7 +179,7 @@ if __name__ == '__main__':
     tornado.options.define("batch_size", type=int, default=1000, help="Elasticsearch bulk index batch size")
     tornado.options.define("num_of_shards", type=int, default=2, help="Number of shards for ES index")
     tornado.options.define("count", type=int, default=10000, help="Number of docs to generate")
-    tornado.options.define("format", type=str, default='name:str,age:int,last_updated:ts', help="message format")
+    tornado.options.define("format", type=str, default='name:str,age:int,last_updated:ts,name:no:', help="message format")
     tornado.options.define("num_of_replicas", type=int, default=0, help="Number of replicas for ES index")
     tornado.options.define("force_init_index", type=bool, default=False, help="Force deleting and re-initializing the Elasticsearch index")
     tornado.options.define("set_refresh", type=bool, default=False, help="Set refresh rate to -1 before starting the upload")
