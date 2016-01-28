@@ -55,7 +55,7 @@ def upload_batch(upload_data_txt):
     request = tornado.httpclient.HTTPRequest(tornado.options.options.es_url + "/_bulk", method="POST", body=upload_data_txt, request_timeout=60 )
     response = yield async_http_client.fetch(request)
 
-    result = json.loads(response.body)
+    result = json.loads(response.body.decode())
     res_txt = "OK" if not result['errors'] else "FAILED"
     took = int(result['took'])
     batch_upload_took.append(took)
@@ -109,7 +109,8 @@ def generate_test_data():
     if tornado.options.options.force_init_index:
         delete_index(tornado.options.options.index_name)
 
-    create_index(tornado.options.options.index_name)
+    if tornado.options.options.create_index:
+        create_index(tornado.options.options.index_name)
 
     # todo: query what refresh is set to, then restore later
     if tornado.options.options.set_refresh:
@@ -186,6 +187,7 @@ if __name__ == '__main__':
     tornado.options.define("out_file", type=str, default=False, help="If set, write test data to out_file as well.")
     tornado.options.define("id_type", type=str, default=None, help="Type of 'id' to use for the docs, valid settings are int and uuid4, None is default")
     tornado.options.define("dict_file", type=str, default=None, help="Name of dictionary file to use")
+    tornado.options.define("create_index", type=bool, default=True, help="If an index should be created")
 
     tornado.options.parse_command_line()
 
