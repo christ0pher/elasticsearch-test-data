@@ -14,12 +14,13 @@ class TestFormatCreation(TestCase):
             index = {
                 "template" : "test*",
                 "mappings" : {
+                    "my_test_type":{
                     "properties":
                         {
                             "test_int_field" : {"type": "integer"},
                             "test_string_field" : {"type": "string"}
                         }
-                }
+                }}
             }
             json.dump(index, indexfile)
 
@@ -29,7 +30,7 @@ class TestFormatCreation(TestCase):
 
     def test_convert_easy_index(self):
 
-        format = create_format_from_index("testindex.json")
+        format = create_format_from_index("testindex.json", "my_test_type")
 
         self.assertEqual(format, "test_int_field:int,test_string_field:str")
 
@@ -41,6 +42,7 @@ class TestNestedFormatCreation(TestCase):
             index = OrderedDict({
                 "template" : "test*",
                 "mappings" : OrderedDict({
+                    "my_test_type":{
                     "properties":
                         {
                             "test_int_field" : {"type": "integer"},
@@ -53,7 +55,7 @@ class TestNestedFormatCreation(TestCase):
                                 ])
                             })
                         }
-                })
+                }})
             })
             json.dump(index, indexfile)
 
@@ -63,6 +65,6 @@ class TestNestedFormatCreation(TestCase):
 
     def test_convert_easy_index(self):
 
-        format = create_format_from_index("testindex.json")
+        format = create_format_from_index("testindex.json", "my_test_type")
 
         self.assertEqual(format, "test_int_field:int,test_nested_field:no:test_ns_int_field;int-test_ns_string_field;str,test_string_field:str")
