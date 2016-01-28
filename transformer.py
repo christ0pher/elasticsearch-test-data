@@ -11,21 +11,21 @@ def create_format_from_index(index_file):
 
     index_properties = OrderedDict(sorted(parsed_index["mappings"]["properties"].items()))
 
-    result_format = ""
+    return create_format(index_properties, "")
 
+
+def create_format(index_properties, result_format, type_delimiter=":", property_delimiter=","):
     for property_name, property_content in index_properties.items():
         property_type = index_properties[property_name]["type"]
         if property_type == "string":
-            result_format += property_name+":str,"
+            result_format += property_name + type_delimiter + "str" + property_delimiter
         elif property_type == "integer":
-            result_format += property_name+":int,"
+            result_format += property_name + type_delimiter +  "int" + property_delimiter
         elif property_type == "float":
             pass
         elif property_type == "nested":
-            pass
-
-    return result_format[:-1] # remove the last comma.
-
+            result_format += property_name + type_delimiter + "no" + type_delimiter + create_format(property_content["properties"], "", type_delimiter=";", property_delimiter="-") + property_delimiter
+    return result_format[:-1]  # remove the last comma.
 
 
 if __name__ == '__main__':
