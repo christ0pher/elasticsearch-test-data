@@ -12,6 +12,8 @@ import tornado.options
 from tornado.httpclient import HTTPRequest, HTTPError
 
 from parser.format_parser import get_data_for_format
+import value_generator
+from value_generator.default_value_generator import set_dict_data
 
 async_http_client = tornado.httpclient.AsyncHTTPClient()
 id_counter = 0
@@ -98,9 +100,6 @@ def set_index_refresh(val):
         pass
 
 
-_dict_data = None
-
-
 @tornado.gen.coroutine
 def generate_test_data():
 
@@ -122,10 +121,15 @@ def generate_test_data():
         out_file = None
 
     if tornado.options.options.dict_file:
-        global _dict_data
-        with open(tornado.options.options.dict_file, 'r') as f:
-            _dict_data = f.readlines()
-        logging.info("Loaded %d words from the %s" % (len(_dict_data), tornado.options.options.dict_file))
+        files = tornado.options.options.dict_file.split(",")
+        dicts = {}
+        for file in files:
+            _dict_data = None
+            with open(file, 'r') as f:
+                _dict_data = f.readlines()
+            dicts[file] = _dict_data
+            logging.info("Loaded %d words from the %s" % (len(_dict_data), file))
+        set_dict_data(dicts)
 
     format = tornado.options.options.format.split(',')
     if not format:

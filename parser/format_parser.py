@@ -25,7 +25,8 @@ def get_data_for_format(format, splitter=":"):
         return_val = get_word_from_wordlist(split_f)
 
     elif field_type == "dict":
-        return_val = create_value_from_dict(split_f)
+        dict_name=split_f[2]
+        return_val = create_value_from_dict(split_f, dict_name)
 
     elif field_type == "no": # nested object
         nested_object_format = split_f[2].split("-")

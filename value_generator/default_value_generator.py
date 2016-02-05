@@ -4,13 +4,24 @@ import time
 
 __author__ = 'christopher@levire.com'
 
+DICT_DATA = []
 
-def create_value_from_dict(split_f):
-    global _dict_data
-    min = 2 if len(split_f) < 3 else int(split_f[2])
-    max = min + 8 if len(split_f) < 4 else int(split_f[3])
-    count = random.randrange(min, max)
-    return_val = " ".join([random.choice(_dict_data).strip() for _ in range(count)])
+
+def set_dict_data(data):
+    global DICT_DATA
+    DICT_DATA = data
+
+
+def create_value_from_dict(split_f, dict_name):
+    global DICT_DATA
+    min = 2 if len(split_f) < 4 else int(split_f[3])
+    max = min + 8 if len(split_f) < 5 else int(split_f[4])
+    if max - min == 0:
+        count = min
+    else:
+        count = random.randrange(min, max)
+    word_dict = DICT_DATA[dict_name]
+    return_val = " ".join([random.choice(word_dict).strip() for _ in range(count)])
     return return_val
 
 
