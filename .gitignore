@@ -52,3 +52,9 @@ docs/_build/
 
 # PyBuilder
 target/
+.idea/.name
+.idea/c_elastic_testdata.iml
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
+.idea/workspace.xml
